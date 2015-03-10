@@ -7,7 +7,8 @@ start customization
 """
 
 #Enter here the Global tags
-tag =  'POSTLS172_V3::All'
+#tag =  'POSTLS172_V3::All'
+tag = 'MCRUN2_73_V7::All'
 #Data or MC?
 runOnMC    = True
 #Flavour plots for MC: "all" = plots for all jets ; "dusg" = plots for d, u, s, dus, g independently ; not mandatory and any combinations are possible 
@@ -18,11 +19,17 @@ PUid = True
 #List of taggers and taginfo to be considered (see example in: DQMOffline/RecoB/python/bTagCommon_cff.py)
 from DQMOffline.RecoB.bTagCommon_cff import *
 tagConfig = cms.VPSet(
+        #cms.PSet(
+        #    bTagGenericAnalysisBlock,
+        #    label = cms.InputTag("combinedInclusiveSecondaryVertexV2BJetTags"),
+        #    folder = cms.string("CSVv2")
+        #),
         cms.PSet(
-            bTagGenericAnalysisBlock,
-            label = cms.InputTag("combinedInclusiveSecondaryVertexV2BJetTags"),
-            folder = cms.string("CSVv2")
+             bTagSimpleSVAnalysisBlock,
+             label = cms.InputTag("pfSimpleSecondaryVertexHighEffBJetTags"),
+             folder = cms.string("SSVHE")
         ),
+
 )
 
 """
@@ -101,6 +108,8 @@ process.dqmSaver.saveByRun = cms.untracked.int32(-1)
 process.dqmSaver.saveAtJobEnd =cms.untracked.bool(True) 
 process.dqmSaver.forceRunNumber = cms.untracked.int32(1)
 process.PoolSource.fileNames = [
-
+    '/store/relval/CMSSW_7_4_0_pre5/RelValTTbar_13/GEN-SIM-RECO/MCRUN2_73_V7-v1/00000/48F1F053-EE9D-E411-B4AB-0025905938D4.root',
+    '/store/relval/CMSSW_7_4_0_pre5/RelValTTbar_13/GEN-SIM-RECO/MCRUN2_73_V7-v1/00000/A6FF14A5-F39D-E411-B7EE-0025905964C0.root',
+    '/store/relval/CMSSW_7_4_0_pre5/RelValTTbar_13/GEN-SIM-RECO/MCRUN2_73_V7-v1/00000/B6CCCDA5-F39D-E411-889E-0025905A60E0.root' 
 ]
 
