@@ -27,13 +27,16 @@ tagConfig = cms.VPSet(
         ),
 )
 
-
 # Rerunning the iclusive vertexing 
 
 process.load("RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff")
 process.load("RecoVertex.AdaptiveVertexFinder.trackVertexArbitrator_cfi")
 process.load("RecoVertex.AdaptiveVertexFinder.vertexMerger_cfi")
 process.load("RecoVertex.AdaptiveVertexFinder.inclusiveVertexFinder_cfi")
+
+process.vertexMerger.maxFraction=cms.double(0.7)
+process.vertexMerger.minSignificance=cms.double(2)
+process.vertexMerger.doMerging=cms.bool(False)
 
 process.MyInclusiveVertex = cms.Sequence(process.inclusiveVertexFinder * process.vertexMerger * process.trackVertexArbitrator * process.inclusiveSecondaryVertices)
 
@@ -104,7 +107,7 @@ process.load("Configuration.Geometry.GeometryIdeal_cff")
 process.GlobalTag.globaltag = tag
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(-1)
 )
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring()
