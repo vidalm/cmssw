@@ -69,7 +69,9 @@ void TemplatedVertexMerger<VTX>::produce(edm::Event &event, const edm::EventSetu
 	
 	//std::cout << "=====================================================================================================================================" << std::endl;
 	//std::cout << " Original RecoVertices size is: " << recoVertices->size() <<   std::endl;
+	//std::cout << "minSignif " << minSignificance << std::endl;
 	//std::cout << "maxFraction: "<<maxFraction<<  std::endl;
+	//std::cout << "Do merging: "<<doMerging<<  std::endl;
 
 	for(typename Product::iterator sv = recoVertices->begin();  sv != recoVertices->end(); ++sv) {
 	  bool mergeable=false;

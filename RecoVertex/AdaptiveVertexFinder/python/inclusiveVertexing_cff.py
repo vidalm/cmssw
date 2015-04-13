@@ -8,6 +8,7 @@ inclusiveSecondaryVertices = vertexMerger.clone()
 inclusiveSecondaryVertices.secondaryVertices = cms.InputTag("trackVertexArbitrator")
 inclusiveSecondaryVertices.maxFraction = 0.2
 inclusiveSecondaryVertices.minSignificance = 10.
+inclusiveSecondaryVertices.doMerging= True
 
 inclusiveVertexing = cms.Sequence(inclusiveVertexFinder*vertexMerger*trackVertexArbitrator*inclusiveSecondaryVertices)
 
@@ -19,7 +20,7 @@ inclusiveCandidateSecondaryVertices = candidateVertexMerger.clone()
 inclusiveCandidateSecondaryVertices.secondaryVertices = cms.InputTag("candidateVertexArbitrator")
 inclusiveCandidateSecondaryVertices.maxFraction = 0.2
 inclusiveCandidateSecondaryVertices.minSignificance = 10.
-
+inclusiveCandidateSecondaryVertices.doMerging= True
 
 inclusiveVertexing = cms.Sequence(inclusiveVertexFinder*vertexMerger*trackVertexArbitrator*inclusiveSecondaryVertices)
 inclusiveCandidateVertexing = cms.Sequence(inclusiveCandidateVertexFinder*candidateVertexMerger*candidateVertexArbitrator*inclusiveCandidateSecondaryVertices)

@@ -28,17 +28,26 @@ tagConfig = cms.VPSet(
 )
 
 # Rerunning the iclusive vertexing 
-
 process.load("RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff")
 process.load("RecoVertex.AdaptiveVertexFinder.trackVertexArbitrator_cfi")
 process.load("RecoVertex.AdaptiveVertexFinder.vertexMerger_cfi")
 process.load("RecoVertex.AdaptiveVertexFinder.inclusiveVertexFinder_cfi")
 
-process.vertexMerger.maxFraction=cms.double(0.7)
-process.vertexMerger.minSignificance=cms.double(2)
-process.vertexMerger.doMerging=cms.bool(False)
+#process.vertexMerger.maxFraction=cms.double(0.7)
+#process.vertexMerger.minSignificance=cms.double(2)
+#process.vertexMerger.doMerging=cms.bool(True)
 
 process.MyInclusiveVertex = cms.Sequence(process.inclusiveVertexFinder * process.vertexMerger * process.trackVertexArbitrator * process.inclusiveSecondaryVertices)
+
+# Rerunning the iclusive candidate vertexing 
+#process.load("RecoVertex.AdaptiveVertexFinder.candidateVertexArbitrator_cfi")
+#process.load("RecoVertex.AdaptiveVertexFinder.candidateVertexMerger_cfi")
+#process.load("RecoVertex.AdaptiveVertexFinder.inclusiveCandidateVertexFinder_cfi")
+
+#process.candidateVertexMerger.maxFraction=cms.double(0.7)
+#process.candidateVertexMerger.minSignificance=cms.double(2) 
+
+#process.MyInclusiveCandidateVertex = cms.Sequence(process.inclusiveCandidateVertexFinder * process.candidateVertexMerger * process.candidateVertexArbitrator * process.inclusiveCandidateSecondaryVertices )
 
 # My tagger not default in reco
 # Running the simpleInclusiveSecondaryVertexHighEffBJetTags
@@ -107,7 +116,7 @@ process.load("Configuration.Geometry.GeometryIdeal_cff")
 process.GlobalTag.globaltag = tag
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(10)
 )
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring()
