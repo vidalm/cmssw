@@ -1,4 +1,4 @@
-#include <memory>
+ #include <memory>
 #include <set>
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -22,7 +22,18 @@
 #include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
 #include "DataFormats/BTauReco/interface/CandIPTagInfo.h"
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
-//#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+
+#include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexUpdator.h"
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexTrackCompatibilityEstimator.h"
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexSmoother.h"
+#include "RecoVertex/MultiVertexFit/interface/MultiVertexFitter.h"
+
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+
+#include "RecoVertex/AdaptiveVertexFinder/interface/TTHelpers.h"
 
 template <class VTX>
 class TemplatedVertexMerger : public edm::stream::EDProducer<> {
@@ -61,6 +72,9 @@ void TemplatedVertexMerger<VTX>::produce(edm::Event &event, const edm::EventSetu
 	edm::Handle<Product> secondaryVertices;
 	event.getByToken(token_secondaryVertex, secondaryVertices);
 
+	edm::ESHandle<TransientTrackBuilder> trackBuilder;
+	es.get<TransientTrackRecord>().get("TransientTrackBuilder",trackBuilder);
+
         VertexDistance3D dist;
 	std::auto_ptr<Product> recoVertices(new Product);
 	for(typename Product::const_iterator sv = secondaryVertices->begin(); sv != secondaryVertices->end(); ++sv) {
@@ -72,7 +86,7 @@ void TemplatedVertexMerger<VTX>::produce(edm::Event &event, const edm::EventSetu
 	//std::cout << "minSignif " << minSignificance << std::endl;
 	//std::cout << "maxFraction: "<<maxFraction<<  std::endl;
 	//std::cout << "Do merging: "<<doMerging<<  std::endl;
-
+	
 	for(typename Product::iterator sv = recoVertices->begin();  sv != recoVertices->end(); ++sv) {
 	  bool mergeable=false;
 	  
@@ -96,6 +110,32 @@ void TemplatedVertexMerger<VTX>::produce(edm::Event &event, const edm::EventSetu
 		if(doMerging){ 
 		  //Merging the shared vertices
 		  svMerger(sv2,sv);
+
+		  // Testing the vertex make sense
+		  if(true){
+		    
+		    AdaptiveVertexFitter theAdaptiveFitter(
+							   //GeometricAnnealing(fitterSigmacut, fitterTini, fitterRatio),
+							   GeometricAnnealing(3, 256, 0.25),
+							   DefaultLinearizationPointFinder(),
+							   KalmanVertexUpdator<5>(),
+							   KalmanVertexTrackCompatibilityEstimator<5>(),
+							   KalmanVertexSmoother() );
+		    
+		    edm::Handle<std::vector<reco::Track> > vtx_tracks = sv2->refittedTracks();
+		    		  
+		    std::vector<reco::TransientTrack> tt_vtx;
+		    for(std::vector<reco::Track>::const_iterator trk = vtx_tracks->begin(); trk!= vtx_tracks->end(); ++trk){
+		      unsigned int k = trk - vtx_tracks->begin();
+		      tt_vtx.push_back(tthelpers::buildTT(vtx_tracks,trackBuilder, k));
+		    }
+		    
+		    //TransientVertex testFitVertex;
+		    //testFitVertex = theAdaptiveFitter.vertex(tt_vtx);
+		    //std::cout << "Original tracks merged vtx: " << vtx_tracks.size() << "Refitted tracks merged vtx: " <<  testFitVertex.refittedTracks().size()  <<  std::endl;
+		  }
+		  //-- End of test
+		
 		}
 	      }
 	  }
@@ -115,7 +155,9 @@ void TemplatedVertexMerger<VTX>::produce(edm::Event &event, const edm::EventSetu
 template <>
 void TemplatedVertexMerger<reco::Vertex>::svMerger(typename Product::iterator sv2, typename Product::iterator sv)
 {
+  
   bool sharingTracks = false;
+
   for(reco::Vertex::trackRef_iterator ti_sv = sv->tracks_begin(); ti_sv!= sv->tracks_end(); ++ti_sv){
     reco::Vertex::trackRef_iterator it = find(sv2->tracks_begin(), sv2->tracks_end(), *ti_sv);
     if (it==sv2->tracks_end()){
