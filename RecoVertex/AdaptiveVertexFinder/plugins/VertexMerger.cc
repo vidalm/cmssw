@@ -1,4 +1,4 @@
- #include <memory>
+#include <memory>
 #include <set>
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -33,7 +33,7 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
-#include "RecoVertex/AdaptiveVertexFinder/interface/TTHelpers.h"
+//#include "RecoVertex/AdaptiveVertexFinder/interface/TTHelpers.h"
 
 template <class VTX>
 class TemplatedVertexMerger : public edm::stream::EDProducer<> {
@@ -47,7 +47,8 @@ class TemplatedVertexMerger : public edm::stream::EDProducer<> {
        bool trackFilter(const reco::TrackRef &track) const;
   
        void svMerger(typename Product::iterator sv, typename Product::iterator sv2);
-	
+       void checkMergedVtx(typename Product::iterator svtx, edm::ESHandle<TransientTrackBuilder> theTTBuilder);
+
        edm::EDGetTokenT<Product> 	        token_secondaryVertex;
        double					maxFraction;
        double					minSignificance;
@@ -72,9 +73,9 @@ void TemplatedVertexMerger<VTX>::produce(edm::Event &event, const edm::EventSetu
 	edm::Handle<Product> secondaryVertices;
 	event.getByToken(token_secondaryVertex, secondaryVertices);
 
-	edm::ESHandle<TransientTrackBuilder> trackBuilder;
-	es.get<TransientTrackRecord>().get("TransientTrackBuilder",trackBuilder);
-
+	edm::ESHandle<TransientTrackBuilder> theTTBuilder;
+	es.get<TransientTrackRecord>().get("TransientTrackBuilder",theTTBuilder);
+ 
         VertexDistance3D dist;
 	std::auto_ptr<Product> recoVertices(new Product);
 	for(typename Product::const_iterator sv = secondaryVertices->begin(); sv != secondaryVertices->end(); ++sv) {
@@ -110,31 +111,8 @@ void TemplatedVertexMerger<VTX>::produce(edm::Event &event, const edm::EventSetu
 		if(doMerging){ 
 		  //Merging the shared vertices
 		  svMerger(sv2,sv);
-		  // Testing the vertex make sense
-		  // if(true){
-		    
-		  // AdaptiveVertexFitter theAdaptiveFitter(
-		  //  					   //GeometricAnnealing(fitterSigmacut, fitterTini, fitterRatio),
-		  //  					   GeometricAnnealing(3, 256, 0.25),
-		  // 					   DefaultLinearizationPointFinder(),
-		  //  					   KalmanVertexUpdator<5>(),
-		  //  					   KalmanVertexTrackCompatibilityEstimator<5>(),
-		  //  					   KalmanVertexSmoother() );
-		    
-		  // std::vector<reco::TransientTrack> tt_vtx;
-		    
-		  // for(reco::Vertex::trackRef_iterator t_sv2 = sv2->tracks_begin(); t_sv2!= sv2->tracks_end(); ++t_sv2){
-		  //     //reco::Track rftrk = sv2->refittedTrack(*t_sv2);
-		  //     // How to convert my track in TransientTrack
-		  //     //tt_vtx.push_back();
-		  // }
-		    
-		  // TransientVertex testFitVertex;
-		  // testFitVertex = theAdaptiveFitter.vertex(tt_vtx);
-		  // //std::cout << "Original tracks merged vtx: " << vtx_tracks.size() << "Refitted tracks merged vtx: " <<  testFitVertex.refittedTracks().size()  <<  std::endl;
-		  // }
-		  //-- End of test
-		  
+		  // Testing if the vertex make sense. Print out
+		  checkMergedVtx(sv2,theTTBuilder);
 		}
 	      }
 	  }
@@ -149,18 +127,75 @@ void TemplatedVertexMerger<VTX>::produce(edm::Event &event, const edm::EventSetu
 
 } //End produce
 
-
-// 
+// Check the merged vertex
 template <>
-void TemplatedVertexMerger<reco::Vertex>::svMerger(typename Product::iterator sv2, typename Product::iterator sv)
+void TemplatedVertexMerger<reco::Vertex>::checkMergedVtx(typename Product::iterator svtx, edm::ESHandle<TransientTrackBuilder> theTTBuilder)
+{
+  
+  AdaptiveVertexFitter theAdaptiveFitter(
+					 //GeometricAnnealing(fitterSigmacut, fitterTini, fitterRatio),
+					 GeometricAnnealing(3, 256, 0.25),
+					 DefaultLinearizationPointFinder(),
+					 KalmanVertexUpdator<5>(),
+					 KalmanVertexTrackCompatibilityEstimator<5>(),
+					 KalmanVertexSmoother() );
+  
+  std::vector<reco::TransientTrack> tt_vtx;
+  
+  for(reco::Vertex::trackRef_iterator t_svtx = svtx->tracks_begin(); t_svtx!= svtx->tracks_end(); ++t_svtx){
+    reco::Track rftrk = svtx->refittedTrack(*t_svtx);
+    reco::TransientTrack transientTrack = theTTBuilder->build(rftrk);
+    tt_vtx.push_back(transientTrack);
+  }
+  
+  TransientVertex testFitVertex;
+  testFitVertex = theAdaptiveFitter.vertex(tt_vtx);
+  //std::cout << "Original tracks merged vtx: " << svtx->tracksSize() << "  Refitted tracks merged vtx: " <<  testFitVertex.refittedTracks().size()  <<  std::endl;
+  if(svtx->tracksSize() != testFitVertex.refittedTracks().size()){
+    std::cout << "Warning: Merged vertex with different track size after refit -- Before: "<< svtx->tracksSize() << " After: "<<testFitVertex.refittedTracks().size() <<  std::endl;
+  }
+
+
+}
+//------
+template <>
+void TemplatedVertexMerger<reco::VertexCompositePtrCandidate>::checkMergedVtx(typename Product::iterator svtx, edm::ESHandle<TransientTrackBuilder> theTTBuilder)
+{
+  
+  AdaptiveVertexFitter theAdaptiveFitter(
+					 //GeometricAnnealing(fitterSigmacut, fitterTini, fitterRatio),
+					 GeometricAnnealing(3, 256, 0.25),
+					 DefaultLinearizationPointFinder(),
+					 KalmanVertexUpdator<5>(),
+					 KalmanVertexTrackCompatibilityEstimator<5>(),
+					 KalmanVertexSmoother() );
+  
+  std::vector<reco::TransientTrack> tt_vtx;
+   for(std::vector<reco::CandidatePtr>::const_iterator t_svtx = svtx->daughterPtrVector().begin(); t_svtx != svtx->daughterPtrVector().end(); ++t_svtx){
+     reco::TransientTrack transientTrack = theTTBuilder->build(*t_svtx);
+     tt_vtx.push_back(transientTrack);
+  }
+  
+  TransientVertex testFitVertex;
+  testFitVertex = theAdaptiveFitter.vertex(tt_vtx);
+  //std::cout << "Original tracks merged vtx: " << svtx->daughterPtrVector().size() << "  Refitted tracks merged vtx: " <<  testFitVertex.refittedTracks().size()  <<  std::endl;
+  if(svtx->daughterPtrVector().size() != testFitVertex.refittedTracks().size()){
+    std::cout << "Warning: Merged vertex with different track size after refit-- Before: "<< svtx->daughterPtrVector().size() << " After: "<<testFitVertex.refittedTracks().size() <<  std::endl;
+  }
+
+}
+
+// Merger. Vertex svi it becames the merging of svi and svj ---------- 
+template <>
+void TemplatedVertexMerger<reco::Vertex>::svMerger(typename Product::iterator svi, typename Product::iterator svj)
 {
   
   bool sharingTracks = false;
 
-  for(reco::Vertex::trackRef_iterator ti_sv = sv->tracks_begin(); ti_sv!= sv->tracks_end(); ++ti_sv){
-    reco::Vertex::trackRef_iterator it = find(sv2->tracks_begin(), sv2->tracks_end(), *ti_sv);
-    if (it==sv2->tracks_end()){
-      sv2->add( *ti_sv, sv->refittedTrack(*ti_sv), sv->trackWeight(*ti_sv));
+  for(reco::Vertex::trackRef_iterator ti_sv = svj->tracks_begin(); ti_sv!= svj->tracks_end(); ++ti_sv){
+    reco::Vertex::trackRef_iterator it = find(svi->tracks_begin(), svi->tracks_end(), *ti_sv);
+    if (it==svi->tracks_end()){
+      svi->add( *ti_sv, svj->refittedTrack(*ti_sv), svj->trackWeight(*ti_sv));
     }else sharingTracks=true;
   }
   
@@ -170,37 +205,37 @@ void TemplatedVertexMerger<reco::Vertex>::svMerger(typename Product::iterator sv
     std::vector<reco::Track> refittedTracks_;
     std::vector<float> weights_;
     
-    for(reco::Vertex::trackRef_iterator it = sv2->tracks_begin(); it!=sv2->tracks_end(); it++) {
+    for(reco::Vertex::trackRef_iterator it = svi->tracks_begin(); it!=svi->tracks_end(); it++) {
       tracks_.push_back( *it);
-      refittedTracks_.push_back( sv2->refittedTrack(*it));
-      weights_.push_back( sv2->trackWeight(*it) );
+      refittedTracks_.push_back( svi->refittedTrack(*it));
+      weights_.push_back( svi->trackWeight(*it) );
     }
     
     // delete tracks and add all tracks back, and check in which vertex the weight is larger
-    sv2->removeTracks();
+    svi->removeTracks();
     std::vector<reco::Track>::iterator it2 = refittedTracks_.begin();
     std::vector<float>::iterator it3 = weights_.begin();
     for(reco::Vertex::trackRef_iterator it = tracks_.begin(); it!=tracks_.end(); it++, it2++, it3++){
       float weight = *it3;
-      float weight2= sv->trackWeight(*it);
+      float weight2= svj->trackWeight(*it);
       reco::Track refittedTrackWithLargerWeight = *it2;
       if( weight2 >weight) {
 	weight = weight2;
-	refittedTrackWithLargerWeight = sv->refittedTrack(*it);
+	refittedTrackWithLargerWeight = svj->refittedTrack(*it);
       }
-      sv2->add(*it , refittedTrackWithLargerWeight , weight);
+      svi->add(*it , refittedTrackWithLargerWeight , weight);
     }
   }
   
 }
 
 template <>
-void TemplatedVertexMerger<reco::VertexCompositePtrCandidate>::svMerger(typename Product::iterator sv2, typename Product::iterator sv)
+void TemplatedVertexMerger<reco::VertexCompositePtrCandidate>::svMerger(typename Product::iterator svi, typename Product::iterator svj)
 {
-  for(std::vector<reco::CandidatePtr>::const_iterator ti_sv = sv->daughterPtrVector().begin(); ti_sv != sv->daughterPtrVector().end(); ++ti_sv){
-    std::vector<reco::CandidatePtr>::const_iterator it = find(sv2->daughterPtrVector().begin(), sv2->daughterPtrVector().end(), *ti_sv);
-    if (it==sv2->daughterPtrVector().end()){ 
-      sv2->addDaughter(*ti_sv);
+  for(std::vector<reco::CandidatePtr>::const_iterator ti_sv = svj->daughterPtrVector().begin(); ti_sv != svj->daughterPtrVector().end(); ++ti_sv){
+    std::vector<reco::CandidatePtr>::const_iterator it = find(svi->daughterPtrVector().begin(), svi->daughterPtrVector().end(), *ti_sv);
+    if (it==svi->daughterPtrVector().end()){ 
+      svi->addDaughter(*ti_sv);
     }
   }
 }
