@@ -110,32 +110,31 @@ void TemplatedVertexMerger<VTX>::produce(edm::Event &event, const edm::EventSetu
 		if(doMerging){ 
 		  //Merging the shared vertices
 		  svMerger(sv2,sv);
-
 		  // Testing the vertex make sense
-		  if(true){
+		  // if(true){
 		    
-		    AdaptiveVertexFitter theAdaptiveFitter(
-							   //GeometricAnnealing(fitterSigmacut, fitterTini, fitterRatio),
-							   GeometricAnnealing(3, 256, 0.25),
-							   DefaultLinearizationPointFinder(),
-							   KalmanVertexUpdator<5>(),
-							   KalmanVertexTrackCompatibilityEstimator<5>(),
-							   KalmanVertexSmoother() );
+		  // AdaptiveVertexFitter theAdaptiveFitter(
+		  //  					   //GeometricAnnealing(fitterSigmacut, fitterTini, fitterRatio),
+		  //  					   GeometricAnnealing(3, 256, 0.25),
+		  // 					   DefaultLinearizationPointFinder(),
+		  //  					   KalmanVertexUpdator<5>(),
+		  //  					   KalmanVertexTrackCompatibilityEstimator<5>(),
+		  //  					   KalmanVertexSmoother() );
 		    
-		    edm::Handle<std::vector<reco::Track> > vtx_tracks = sv2->refittedTracks();
-		    		  
-		    std::vector<reco::TransientTrack> tt_vtx;
-		    for(std::vector<reco::Track>::const_iterator trk = vtx_tracks->begin(); trk!= vtx_tracks->end(); ++trk){
-		      unsigned int k = trk - vtx_tracks->begin();
-		      tt_vtx.push_back(tthelpers::buildTT(vtx_tracks,trackBuilder, k));
-		    }
+		  // std::vector<reco::TransientTrack> tt_vtx;
 		    
-		    //TransientVertex testFitVertex;
-		    //testFitVertex = theAdaptiveFitter.vertex(tt_vtx);
-		    //std::cout << "Original tracks merged vtx: " << vtx_tracks.size() << "Refitted tracks merged vtx: " <<  testFitVertex.refittedTracks().size()  <<  std::endl;
-		  }
+		  // for(reco::Vertex::trackRef_iterator t_sv2 = sv2->tracks_begin(); t_sv2!= sv2->tracks_end(); ++t_sv2){
+		  //     //reco::Track rftrk = sv2->refittedTrack(*t_sv2);
+		  //     // How to convert my track in TransientTrack
+		  //     //tt_vtx.push_back();
+		  // }
+		    
+		  // TransientVertex testFitVertex;
+		  // testFitVertex = theAdaptiveFitter.vertex(tt_vtx);
+		  // //std::cout << "Original tracks merged vtx: " << vtx_tracks.size() << "Refitted tracks merged vtx: " <<  testFitVertex.refittedTracks().size()  <<  std::endl;
+		  // }
 		  //-- End of test
-		
+		  
 		}
 	      }
 	  }
