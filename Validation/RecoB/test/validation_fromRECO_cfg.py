@@ -19,16 +19,16 @@ PUid = True
 #List of taggers and taginfo to be considered (see example in: DQMOffline/RecoB/python/bTagCommon_cff.py)
 from DQMOffline.RecoB.bTagCommon_cff import *
 tagConfig = cms.VPSet(
-        #cms.PSet(
-        #    bTagGenericAnalysisBlock,
-        #    label = cms.InputTag("combinedInclusiveSecondaryVertexV2BJetTags"),
-        #    folder = cms.string("CSVv2")
-        #),
         cms.PSet(
-             bTagSimpleSVAnalysisBlock,
-             label = cms.InputTag("pfSimpleSecondaryVertexHighEffBJetTags"),
-             folder = cms.string("SSVHE")
+            bTagGenericAnalysisBlock,
+            label = cms.InputTag("combinedInclusiveSecondaryVertexV2BJetTags"),
+            folder = cms.string("CSVv2")
         ),
+        #cms.PSet(
+        #     bTagSimpleSVAnalysisBlock,
+        #     label = cms.InputTag("pfSimpleSecondaryVertexHighEffBJetTags"),
+        #     folder = cms.string("SSVHE")
+        #),
 
 )
 
