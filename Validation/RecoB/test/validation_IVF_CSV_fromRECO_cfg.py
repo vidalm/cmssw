@@ -40,19 +40,19 @@ process.load("RecoVertex.AdaptiveVertexFinder.inclusiveVertexFinder_cfi")
 process.load("RecoVertex.AdaptiveVertexFinder.candidateVertexMerger_cfi")
 
 process.vertexMerger.maxFraction=cms.double(0.95)
-process.vertexMerger.minSignificance=cms.double(1)
+process.vertexMerger.minSignificance=cms.double(0.5)
 process.vertexMerger.doMerging=cms.bool(True)
 
 process.candidateVertexMerger.maxFraction=cms.double(0.95)
-process.candidateVertexMerger.minSignificance=cms.double(1)
+process.candidateVertexMerger.minSignificance=cms.double(0.5)
 process.candidateVertexMerger.doMerging=cms.bool(True)
 
 process.inclusiveSecondaryVertices.maxFraction=cms.double(0.95)
-process.inclusiveSecondaryVertices.minSignificance=cms.double(1)
+process.inclusiveSecondaryVertices.minSignificance=cms.double(0.5)
 process.inclusiveSecondaryVertices.doMerging=cms.bool(True)
 
 process.inclusiveCandidateSecondaryVertices.maxFraction=cms.double(0.95)
-process.inclusiveCandidateSecondaryVertices.minSignificance=cms.double(1)
+process.inclusiveCandidateSecondaryVertices.minSignificance=cms.double(0.5)
 process.inclusiveCandidateSecondaryVertices.doMerging=cms.bool(True)
 
 process.MyInclusiveVertex = cms.Sequence(process.inclusiveVertexFinder * process.vertexMerger * process.trackVertexArbitrator * process.inclusiveSecondaryVertices)
@@ -159,8 +159,24 @@ process.dqmSaver.saveByRun = cms.untracked.int32(-1)
 process.dqmSaver.saveAtJobEnd =cms.untracked.bool(True) 
 process.dqmSaver.forceRunNumber = cms.untracked.int32(1)
 process.PoolSource.fileNames = [
+# TTbar no PU
     '/store/relval/CMSSW_7_4_0_pre5/RelValTTbar_13/GEN-SIM-RECO/MCRUN2_73_V7-v1/00000/48F1F053-EE9D-E411-B4AB-0025905938D4.root',
     '/store/relval/CMSSW_7_4_0_pre5/RelValTTbar_13/GEN-SIM-RECO/MCRUN2_73_V7-v1/00000/A6FF14A5-F39D-E411-B7EE-0025905964C0.root',
     '/store/relval/CMSSW_7_4_0_pre5/RelValTTbar_13/GEN-SIM-RECO/MCRUN2_73_V7-v1/00000/B6CCCDA5-F39D-E411-889E-0025905A60E0.root' 
+# Ttbar PU
+#    '/store/relval/CMSSW_7_4_6/RelValTTbar_13/GEN-SIM-RECO/PU25ns_MCRUN2_74_V9-v2/00000/403FA79E-251A-E511-B21A-0025905B855C.root',
+#    '/store/relval/CMSSW_7_4_6/RelValTTbar_13/GEN-SIM-RECO/PU25ns_MCRUN2_74_V9-v2/00000/623B1740-551A-E511-8A61-0025905A60CA.root',
+#    '/store/relval/CMSSW_7_4_6/RelValTTbar_13/GEN-SIM-RECO/PU25ns_MCRUN2_74_V9-v2/00000/6AEC1D6D-361A-E511-8AFF-0025905938A8.root',
+#    '/store/relval/CMSSW_7_4_6/RelValTTbar_13/GEN-SIM-RECO/PU25ns_MCRUN2_74_V9-v2/00000/801ABCFB-5B1A-E511-BB68-0025905A4964.root',
+#    '/store/relval/CMSSW_7_4_6/RelValTTbar_13/GEN-SIM-RECO/PU25ns_MCRUN2_74_V9-v2/00000/9429572C-221A-E511-8613-0025905A6064.root',
+#    '/store/relval/CMSSW_7_4_6/RelValTTbar_13/GEN-SIM-RECO/PU25ns_MCRUN2_74_V9-v2/00000/B6B7C7EA-1E1B-E511-8472-0025905B8576.root',
+#    '/store/relval/CMSSW_7_4_6/RelValTTbar_13/GEN-SIM-RECO/PU25ns_MCRUN2_74_V9-v2/00000/D6833B78-3C1A-E511-9D9B-0026189438B5.root',
+#    '/store/relval/CMSSW_7_4_6/RelValTTbar_13/GEN-SIM-RECO/PU25ns_MCRUN2_74_V9-v2/00000/DA508AF0-4E1A-E511-A655-0025905A60E0.root',
+#    '/store/relval/CMSSW_7_4_6/RelValTTbar_13/GEN-SIM-RECO/PU25ns_MCRUN2_74_V9-v2/00000/F479010F-491A-E511-98F9-0025905938B4.root',
+#    '/store/relval/CMSSW_7_4_6/RelValTTbar_13/GEN-SIM-RECO/PU25ns_MCRUN2_74_V9-v2/00000/F837DA4C-561B-E511-BB00-0025905A6138.root'
+# QCD no PU
+#    '/store/relval/CMSSW_7_4_6_patch1/RelValQCD_Pt_80_120_13/GEN-SIM-RECO/MCRUN2_74_V9-v1/00000/08C7F3BB-AD1E-E511-89B5-00261894394B.root',
+#    '/store/relval/CMSSW_7_4_6_patch1/RelValQCD_Pt_80_120_13/GEN-SIM-RECO/MCRUN2_74_V9-v1/00000/4259B161-A61E-E511-BBE0-0025905A497A.root',
+#    '/store/relval/CMSSW_7_4_6_patch1/RelValQCD_Pt_80_120_13/GEN-SIM-RECO/MCRUN2_74_V9-v1/00000/ACD186B6-AD1E-E511-8FF3-002618943950.root'
 ]
 

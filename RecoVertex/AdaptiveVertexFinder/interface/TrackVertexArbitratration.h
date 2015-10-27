@@ -164,7 +164,7 @@ std::vector<VTX> & secondaryVertices)
 	     && dR < dRCut )
 	    {
 
-	      selTracks.push_back(tt);
+	      //selTracks.push_back(tt);
 	      // Check if the track distance to sv is smaller than to another secondary vertices
 	      Measurement1D minDist=isv;
 	      GlobalPoint ssvmin=ssv;
@@ -173,7 +173,7 @@ std::vector<VTX> & secondaryVertices)
 		  svj != secondaryVertices.end(); ++svj) {
 		if (sv == svj) continue;
 		Measurement1D svdist = mydist.distance(VertexState(RecoVertex::convertPos(sv->position()),RecoVertex::convertError(sv->error())),VertexState(RecoVertex::convertPos(svj->position()),RecoVertex::convertError(svj->error())));
-		if(svdist.significance() > 100){
+		if(svdist.significance() > 50){
 		  TrajectoryStateOnSurface tsosj = extrapolator.extrapolate(tt.impactPointState(), RecoVertex::convertPos(svj->position()));
 		  if(! tsosj.isValid()) continue;
 		  GlobalPoint refPointj = tsosj.globalPosition();
@@ -215,7 +215,7 @@ std::vector<VTX> & secondaryVertices)
 		  if (sv == svj) continue;
 		  Measurement1D svdist = mydist.distance(VertexState(RecoVertex::convertPos(sv->position()),RecoVertex::convertError(sv->error())),VertexState(RecoVertex::convertPos(svj->position()),RecoVertex::convertError(svj->error())));
 		  
-		  if(svdist.significance() > 100){
+		  if(svdist.significance() > 50){
 		    TrajectoryStateOnSurface tsosj = extrapolator.extrapolate(tt.impactPointState(), RecoVertex::convertPos(svj->position()));
 		    if(! tsosj.isValid()) continue;
 		    GlobalPoint refPointj = tsosj.globalPosition();
