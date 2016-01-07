@@ -24,15 +24,12 @@ namespace vertexTools {
 			unsigned int count = 0;
 			for(std::vector<CandidatePtr>::const_iterator iter = svTracks.begin();
 					iter != svTracks.end(); iter++)
-			{
-			  std::cout<<"MERDA" <<std::endl;
-			  if( std::abs((*iter)->bestTrack()->dxy(pv.position())/(*iter)->bestTrack()->dxyError()) != (*iter)->bestTrack()->dxy(pv.position())/(*iter)->bestTrack()->dxyError()) std::cout<<"DIFF BUG "<<(*iter)->bestTrack()->dxy(pv.position())/(*iter)->bestTrack()->dxyError() << " NoBug: "<< std::abs((*iter)->bestTrack()->dxy(pv.position())/(*iter)->bestTrack()->dxyError())<<std::endl;
-
-			  if( std::abs((*iter)->bestTrack()->dz()-pv.z())/(*iter)->bestTrack()->dzError() < maxsigma &&
-			      std::abs((*iter)->bestTrack()->dxy(pv.position())/(*iter)->bestTrack()->dxyError()) < maxsigma
-			      )
-					count++;
-			}
+			  {
+			    if( std::abs((*iter)->bestTrack()->dz()-pv.z())/(*iter)->bestTrack()->dzError() < maxsigma &&
+				std::abs((*iter)->bestTrack()->dxy(pv.position())/(*iter)->bestTrack()->dxyError()) < maxsigma
+				)
+			      count++;
+			  }
 			return (double)count/(double)svTracks.size();
 		}
 	double	computeSharedTracks(const VertexCompositePtrCandidate &sv2, const std::vector<CandidatePtr> &svTracks, double , float )
